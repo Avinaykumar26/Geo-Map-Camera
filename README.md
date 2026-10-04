@@ -55,7 +55,7 @@ unexpected host, tracking API, or >150 KB gzipped JS budget is exceeded.
 | FR-03 | Canvas overlay burn-in | `src/lib/overlay.js` (pure `layoutOverlay` + `drawOverlay`) |
 | FR-04 | Mini-map snapshot | `src/lib/staticmap.js` (hand-rolled Web-Mercator tile compositor, scale bar, marker, offline grid fallback) |
 | FR-05 | Save / export | `src/lib/capture.js` + `src/lib/download.js` (JPEG quality / PNG, geotagged filename) |
-| FR-06 | Customization toggles | `src/lib/settings.js` + settings drawer (overlays, coord/time formats, map zoom, export) |
+| FR-06 | Customization toggles | `src/lib/settings.js` + settings drawer (overlays, coord/time formats, map zoom, export) + day/night theme toggle |
 | FR-07 | PWA install | `public/manifest.webmanifest` + `public/sw.js` (offline shell + capped tile cache) |
 
 ### Demo mode (no camera / embedded previews)

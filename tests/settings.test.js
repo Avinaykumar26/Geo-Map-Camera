@@ -31,6 +31,8 @@ describe('sanitizeSettings', () => {
     expect(sanitizeSettings({ coordFormat: 'sexagesimal' }).coordFormat).toBe('decimal');
     expect(sanitizeSettings({ coordFormat: 'dms' }).coordFormat).toBe('dms');
     expect(sanitizeSettings({ exportFormat: 'webp' }).exportFormat).toBe('jpeg');
+    expect(sanitizeSettings({ theme: 'blue' }).theme).toBe('dark');
+    expect(sanitizeSettings({ theme: 'light' }).theme).toBe('light');
   });
 
   it('coerces booleans', () => {

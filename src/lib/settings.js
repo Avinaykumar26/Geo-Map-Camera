@@ -5,6 +5,9 @@
 export const STORAGE_KEY = 'gmc.settings.v1';
 
 export const DEFAULT_SETTINGS = {
+  // Appearance
+  theme: 'dark', // dark | light
+
   // Overlays (FR-06)
   showMap: true,
   showCoords: true,
@@ -34,6 +37,7 @@ export const DEFAULT_SETTINGS = {
 /** Inclusive [min, max] range per numeric setting. */
 const NUMERIC = { coordDecimals: [4, 6], mapZoom: [12, 19], jpegQuality: [0.5, 1] };
 const ENUMS = {
+  theme: ['dark', 'light'],
   coordFormat: ['decimal', 'dms', 'compact'],
   dateFormat: ['iso', 'local', 'us', 'eu', 'unix'],
   exportFormat: ['jpeg', 'png'],

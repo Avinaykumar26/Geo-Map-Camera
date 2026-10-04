@@ -48,6 +48,7 @@ const els = {
   retake: $('retake'),
   save: $('save'),
   settings: $('settings'),
+  themeToggle: $('theme-toggle'),
   openSettings: $('open-settings'),
   resetSettings: $('reset-settings'),
   toast: $('toast'),
@@ -360,6 +361,29 @@ function retake() {
   refreshHud();
 }
 
+/* --------------------------------- theme ---------------------------------- */
+
+function applyTheme() {
+  const theme = state.settings.theme;
+  document.documentElement.dataset.theme = theme;
+  document
+    .querySelector('meta[name="theme-color"]')
+    ?.setAttribute('content', theme === 'light' ? '#f2f5f9' : '#070b10');
+  els.themeToggle.setAttribute(
+    'aria-label',
+    theme === 'light' ? 'Switch to night theme' : 'Switch to day theme',
+  );
+}
+
+function toggleTheme() {
+  state.settings = sanitizeSettings({
+    ...state.settings,
+    theme: state.settings.theme === 'light' ? 'dark' : 'light',
+  });
+  saveSettings(state.settings);
+  applyTheme();
+}
+
 /* -------------------------------- settings -------------------------------- */
 
 function syncSettingsUI() {
@@ -419,9 +443,11 @@ function bind() {
     state.settings = { ...DEFAULT_SETTINGS };
     saveSettings(state.settings);
     syncSettingsUI();
+    applyTheme();
     refreshHud();
     toast('Settings reset');
   });
+  els.themeToggle.addEventListener('click', toggleTheme);
   els.settings.addEventListener('change', onSettingChange);
   els.settings.addEventListener('input', (event) => {
     if (event.target.type === 'range') onSettingChange(event);
@@ -458,6 +484,7 @@ function registerServiceWorker() {
 
 function init() {
   syncSettingsUI();
+  applyTheme();
   bind();
   registerServiceWorker();
   els.embedNote.hidden = !isEmbedded();

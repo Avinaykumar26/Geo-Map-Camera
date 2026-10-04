@@ -20,6 +20,12 @@ function loadBody() {
     .slice(html.indexOf('<body>') + '<body>'.length, html.indexOf('</body>'))
     .replace(/<script[^>]*src=[^>]*>\s*<\/script>/g, '');
   document.body.innerHTML = body;
+
+  // The theme toggle updates a <head> meta tag; bring it into jsdom too.
+  const themeMeta = html.match(/<meta name="theme-color"[^>]*>/)?.[0];
+  if (themeMeta && !document.head.querySelector('meta[name="theme-color"]')) {
+    document.head.insertAdjacentHTML('beforeend', themeMeta);
+  }
 }
 
 describe('app boot', () => {
@@ -46,6 +52,23 @@ describe('app boot', () => {
 
   it('keeps the settings drawer closed until asked', () => {
     expect(document.getElementById('settings').hidden).toBe(true);
+  });
+
+  it('flips day/night theme, updates meta/aria and persists', () => {
+    const meta = document.querySelector('meta[name="theme-color"]');
+    const toggle = document.getElementById('theme-toggle');
+
+    expect(document.documentElement.dataset.theme).toBe('dark');
+    expect(meta.getAttribute('content')).toBe('#070b10');
+
+    toggle.click();
+    expect(document.documentElement.dataset.theme).toBe('light');
+    expect(meta.getAttribute('content')).toBe('#f2f5f9');
+    expect(toggle.getAttribute('aria-label')).toBe('Switch to night theme');
+
+    toggle.click();
+    expect(document.documentElement.dataset.theme).toBe('dark');
+    expect(meta.getAttribute('content')).toBe('#070b10');
   });
 });
 
