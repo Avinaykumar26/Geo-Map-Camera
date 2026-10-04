@@ -128,4 +128,4 @@ if (violations.length) {
   process.exit(1);
 }
 
-console.log('\n✓ no user data leaves the device; only map tiles + reverse geocoding are reachable.');
+console.log('\n✓ photo processing stays on-device; only OSM endpoints and the AdSense loader are allowlisted.');

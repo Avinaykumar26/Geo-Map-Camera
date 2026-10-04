@@ -3,22 +3,28 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-    <title>Geo Map Camera — free online geotag camera, no login, 100% on-device</title>
+    <title>Geo Map Camera — free online geotag camera, photos stay on-device</title>
     <meta
       name="description"
-      content="Free online geotag camera. Add GPS coordinates, timestamp, address and a live map snapshot to your photos in the browser. No account, no upload — every photo is processed on your own device."
+      content="Free online geotag camera. Add GPS coordinates, timestamp, address and a live map snapshot to your photos in the browser. Photos are processed on-device; Google AdSense loads for advertising."
     />
     <meta name="color-scheme" content="dark" />
     <meta name="theme-color" content="#070b10" />
     <meta name="robots" content="index, follow" />
     <meta name="referrer" content="no-referrer" />
 
+    <script
+      async
+      src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-3171729919710528"
+      crossorigin="anonymous"
+    ></script>
+
     <meta property="og:type" content="website" />
     <meta property="og:site_name" content="Geo Map Camera" />
     <meta property="og:title" content="Geo Map Camera — add location to a photo online, privately" />
     <meta
       property="og:description"
-      content="Capture a photo and burn accurate GPS coordinates, timestamp, address and a map snapshot straight onto it. Zero logins, zero uploads, zero trackers."
+      content="Capture a photo and burn accurate GPS coordinates, timestamp, address and a map snapshot straight onto it. No account or photo uploads; your images stay on your device."
     />
     <meta name="twitter:card" content="summary" />
 
@@ -55,9 +61,9 @@
         <span class="brand__name">Geo Map Camera</span>
       </div>
       <div class="topbar__actions">
-        <span class="badge" title="No account, no upload, no trackers">
+        <span class="badge" title="Photos are processed on this device; Google AdSense loads separately">
           <span class="badge__dot" aria-hidden="true"></span>
-          <span id="privacy-badge-text">100% on-device</span>
+          <span id="privacy-badge-text">Photos stay on device</span>
         </span>
         <button id="theme-toggle" class="icon-button icon-button--text" type="button" aria-label="Switch to day theme" title="Day / night">
           <span class="icon-day" aria-hidden="true">☀️</span>
@@ -75,8 +81,8 @@
         <h1>Geotagged photos, made in your browser.</h1>
         <p class="lede">
           Point, shoot, save. Geo Map Camera burns accurate coordinates, a timestamp, the street
-          address and a map snapshot straight onto your photo — with no account, no upload and no
-          trackers.
+          address and a map snapshot straight onto your photo — with no account and no photo
+          uploads. Photos stay on this device; Google AdSense loads separately for advertising.
         </p>
 
         <button id="start" class="cta" type="button">
@@ -95,7 +101,7 @@
         <ul class="privacy-list">
           <li><strong>Zero-knowledge.</strong> Your photo never leaves your device — there is no server to receive it.</li>
           <li><strong>No login.</strong> Nothing to sign up for, nothing to remember, nothing to leak.</li>
-          <li><strong>No trackers.</strong> No analytics, no ad networks, no cookies.</li>
+          <li><strong>Ads are third-party.</strong> Google AdSense may use cookies or other identifiers for advertising; the camera app never sends it your photos.</li>
           <li><strong>Works offline.</strong> Install it to your home screen and it still stamps photos without signal.</li>
         </ul>
 
@@ -112,8 +118,9 @@
         </details>
         <details class="faq">
           <summary>Which network requests does the app make?</summary>
-          <p>Two, both to OpenStreetMap: raster map tiles for the mini-map, and an optional reverse-geocode
-          lookup that turns your coordinates into a street address. Neither carries your photo.</p>
+          <p>The app requests OpenStreetMap tiles and reverse-geocoding, plus the Google AdSense script
+          for advertising. Google may make additional ad requests and process browser data under its
+          privacy policy. The camera app never sends your photo to Google.</p>
         </details>
         <details class="faq">
           <summary>Why does it need HTTPS?</summary>
@@ -258,7 +265,7 @@
           </fieldset>
 
           <p class="drawer__note">
-            Settings are stored in this browser only. Nothing is synced, sent or logged.
+            Settings stay in this browser and are not sent by the camera app. Google AdSense makes separate advertising requests.
           </p>
         </div>
       </div>
