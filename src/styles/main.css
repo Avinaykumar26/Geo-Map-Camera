@@ -214,6 +214,17 @@ main {
   flex-direction: row;
 }
 
+.embed-note {
+  margin: 0;
+  padding: 12px 14px;
+  border-radius: 14px;
+  border: 1px solid rgba(250, 204, 21, 0.35);
+  background: rgba(250, 204, 21, 0.08);
+  color: #fde68a;
+  font-size: 0.88rem;
+  line-height: 1.5;
+}
+
 .privacy-list {
   margin: 0;
   padding: 0;
@@ -408,6 +419,14 @@ main {
   color: var(--text-dim);
   max-width: 34ch;
   line-height: 1.5;
+}
+
+.fatal__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  justify-content: center;
+  align-items: center;
 }
 
 /* ------------------------------ controls ------------------------------ */

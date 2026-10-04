@@ -8,21 +8,26 @@
 import { readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 
-import { beforeAll, describe, expect, it } from 'vitest';
+import { beforeAll, describe, expect, it, vi } from 'vitest';
+
+import { createCanvasStub } from './helpers/canvas-stub.js';
 
 const root = resolve(import.meta.dirname, '..');
 const html = readFileSync(resolve(root, 'index.html'), 'utf8');
+
+function loadBody() {
+  const body = html
+    .slice(html.indexOf('<body>') + '<body>'.length, html.indexOf('</body>'))
+    .replace(/<script[^>]*src=[^>]*>\s*<\/script>/g, '');
+  document.body.innerHTML = body;
+}
 
 describe('app boot', () => {
   beforeAll(async () => {
     // jsdom reports an insecure context by default; the real app ships over
     // HTTPS (and shows a dedicated fatal screen otherwise — covered below).
     Object.defineProperty(globalThis, 'isSecureContext', { value: true, configurable: true });
-
-    const body = html
-      .slice(html.indexOf('<body>') + '<body>'.length, html.indexOf('</body>'))
-      .replace(/<script[^>]*src=[^>]*>\s*<\/script>/g, '');
-    document.body.innerHTML = body;
+    loadBody();
     await import('../src/main.js');
   });
 
@@ -61,5 +66,36 @@ describe('insecure context', () => {
     expect(document.getElementById('screen-camera').hidden).toBe(false);
     expect(document.getElementById('fatal').hidden).toBe(false);
     expect(document.getElementById('fatal-title').textContent).toBe('HTTPS required');
+  });
+});
+
+describe('demo mode (no real camera available)', () => {
+  it('clicking "Explore in demo mode" starts the synthetic pipeline', async () => {
+    vi.resetModules();
+    Object.defineProperty(globalThis, 'isSecureContext', { value: true, configurable: true });
+
+    // jsdom has no 2D context / captureStream; stand in for both.
+    const { ctx } = createCanvasStub(1280, 720);
+    const getContext = HTMLCanvasElement.prototype.getContext;
+    const captureStream = HTMLCanvasElement.prototype.captureStream;
+    HTMLCanvasElement.prototype.getContext = () => ctx;
+    HTMLCanvasElement.prototype.captureStream = () => ({ getTracks: () => [{ stop: vi.fn() }] });
+
+    try {
+      loadBody();
+      await import('../src/main.js');
+
+      document.getElementById('start-demo').click();
+      await new Promise((resolvePromise) => setTimeout(resolvePromise, 20));
+
+      expect(document.getElementById('screen-intro').hidden).toBe(true);
+      expect(document.getElementById('screen-camera').hidden).toBe(false);
+      expect(document.getElementById('fatal').hidden).toBe(true);
+      expect(document.getElementById('hud-coords').textContent).not.toBe('Waiting for GPS…');
+    } finally {
+      HTMLCanvasElement.prototype.getContext = getContext;
+      HTMLCanvasElement.prototype.captureStream = captureStream;
+      vi.useRealTimers();
+    }
   });
 });

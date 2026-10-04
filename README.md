@@ -58,6 +58,17 @@ unexpected host, tracking API, or >150 KB gzipped JS budget is exceeded.
 | FR-06 | Customization toggles | `src/lib/settings.js` + settings drawer (overlays, coord/time formats, map zoom, export) |
 | FR-07 | PWA install | `public/manifest.webmanifest` + `public/sw.js` (offline shell + capped tile cache) |
 
+### Demo mode (no camera / embedded previews)
+
+Browsers refuse `getUserMedia()` inside embedded iframes (like hosted previews)
+unless the embedder delegates `camera=` — and some devices have no webcam at all.
+So the app ships a **demo mode**: a synthetic scene via `canvas.captureStream()`
+plus a simulated GPS fix wandering around MG Road, Bengaluru (reverse-geocoded
+for real via Nominatim). Every downstream stage — overlays, mini-map, export —
+is identical, so the product is fully testable anywhere. Entry points:
+“No camera handy? Explore in demo mode” on the landing screen and
+“Use demo mode” on any camera-failure screen (`src/lib/demo.js`).
+
 ### Privacy-by-design details
 - **Taint safety:** tiles load with `crossOrigin="anonymous"`. If a proxy ever strips
   CORS headers (or the network dies), the compositor detects a tainted canvas and

@@ -12,6 +12,7 @@ import {
   streamInfo,
 } from './lib/camera.js';
 import { captureStampedPhoto } from './lib/capture.js';
+import { createDemoCamera, createDemoGeo } from './lib/demo.js';
 import { downloadBlob, formatBytes } from './lib/download.js';
 import { formatAccuracy, formatCoords, formatTimestamp } from './lib/format.js';
 import { createAddressResolver, watchPosition } from './lib/geo.js';
@@ -26,6 +27,8 @@ const els = {
   camera: $('screen-camera'),
   review: $('screen-review'),
   start: $('start'),
+  startDemo: $('start-demo'),
+  embedNote: $('embed-note'),
   video: $('viewfinder'),
   hudMap: $('hud-map'),
   hudCoords: $('hud-coords'),
@@ -36,6 +39,7 @@ const els = {
   fatalTitle: $('fatal-title'),
   fatalHint: $('fatal-hint'),
   fatalRetry: $('fatal-retry'),
+  fatalDemo: $('fatal-demo'),
   shutter: $('shutter'),
   flip: $('flip'),
   last: $('last'),
@@ -68,6 +72,17 @@ const state = {
   toastTimer: 0,
   running: false,
   capturing: false,
+  demo: false,
+  demoCamera: null,
+  demoGeo: null,
+};
+
+const isEmbedded = () => {
+  try {
+    return window.self !== window.top;
+  } catch {
+    return true; // cross-origin top access throws -> we are embedded
+  }
 };
 
 /* --------------------------------- screens -------------------------------- */
@@ -88,7 +103,11 @@ function setStatus(message, tone = '') {
 
 function showFatal({ title, hint }) {
   els.fatalTitle.textContent = title;
-  els.fatalHint.textContent = hint;
+  let message = hint;
+  if (isEmbedded() && title !== 'HTTPS required') {
+    message += ' Embedded previews usually block the camera — try opening this page in its own tab, or use demo mode.';
+  }
+  els.fatalHint.textContent = message;
   els.fatal.hidden = false;
 }
 
@@ -109,7 +128,53 @@ function toast(message, tone = '') {
 
 /* --------------------------------- camera --------------------------------- */
 
+async function playVideo() {
+  try {
+    const pending = els.video.play();
+    if (pending && typeof pending.catch === 'function') await pending.catch(() => {});
+  } catch {
+    /* autoplay policy or stubbed media element — non-fatal */
+  }
+}
+
+function stopDemo() {
+  state.demoGeo?.stop();
+  state.demoCamera?.stop();
+  state.demoGeo = null;
+  state.demoCamera = null;
+  state.demo = false;
+}
+
+/** Synthetic camera + GPS for environments where the real camera is blocked. */
+async function startDemo() {
+  stopStream(state.stream);
+  state.watch?.stop();
+  stopDemo();
+
+  const demoCamera = createDemoCamera();
+  if (!demoCamera.supported) {
+    toast('Demo mode needs canvas.captureStream, which this browser lacks.', 'error');
+    return;
+  }
+  state.demoCamera = demoCamera;
+  state.demo = true;
+  state.stream = demoCamera.stream;
+  state.info = { facing: 'environment', label: 'Demo scene', width: demoCamera.width, height: demoCamera.height };
+
+  els.video.srcObject = state.stream;
+  await playVideo();
+
+  hideFatal();
+  show(els.camera);
+  setStatus('Demo mode — simulated camera & GPS (MG Road, Bengaluru)', 'warn');
+
+  state.demoGeo = createDemoGeo();
+  state.demoGeo.start(handleFix);
+  state.running = true;
+}
+
 async function startCamera() {
+  stopDemo();
   hideFatal();
   setStatus('Starting camera…');
   try {
@@ -120,7 +185,7 @@ async function startCamera() {
     });
     state.activeDeviceId = null;
     els.video.srcObject = state.stream;
-    await els.video.play().catch(() => {});
+    await playVideo();
     state.info = streamInfo(state.stream);
     state.cameras = await listVideoInputs().catch(() => []);
     els.flip.disabled = state.cameras.length < 2;
@@ -135,12 +200,20 @@ async function startCamera() {
 }
 
 function cameraLabel() {
+  if (state.demo) {
+    return `Demo scene · ${state.info?.width ?? 1280}×${state.info?.height ?? 720}`;
+  }
   const facing = state.info?.facing === 'user' ? 'Front camera' : 'Rear camera';
   const size = state.info?.width ? ` · ${state.info.width}×${state.info.height}` : '';
   return `${facing}${size}`;
 }
 
 async function flipCamera() {
+  if (state.demo) {
+    state.demoCamera?.flip();
+    setStatus('Demo scene mirrored');
+    return;
+  }
   const current = state.info?.facing ?? 'environment';
   const wanted = current === 'user' ? 'environment' : 'user';
   const target = els.cameras.find((camera) => camera.facing === wanted);
@@ -333,6 +406,8 @@ async function start() {
 
 function bind() {
   els.start.addEventListener('click', start);
+  els.startDemo.addEventListener('click', startDemo);
+  els.fatalDemo.addEventListener('click', startDemo);
   els.fatalRetry.addEventListener('click', start);
   els.shutter.addEventListener('click', capture);
   els.flip.addEventListener('click', flipCamera);
@@ -365,7 +440,8 @@ function bind() {
       state.stream = null;
       state.running = false;
     } else if (!els.camera.hidden && !state.stream) {
-      startCamera();
+      if (state.demo) startDemo();
+      else startCamera();
       startHudClock();
     }
   });
@@ -384,6 +460,7 @@ function init() {
   syncSettingsUI();
   bind();
   registerServiceWorker();
+  els.embedNote.hidden = !isEmbedded();
   show(els.intro);
   if (!globalThis.isSecureContext) {
     show(els.camera);

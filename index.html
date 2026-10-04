@@ -79,6 +79,14 @@
           <span class="cta__label">Start camera</span>
           <span class="cta__hint">Camera + location stay on this device</span>
         </button>
+        <button id="start-demo" class="ghost" type="button">
+          No camera handy? Explore in demo mode
+        </button>
+        <p id="embed-note" class="embed-note" hidden>
+          You are viewing an embedded preview. Browsers often block the camera inside
+          embedded frames — if “Start camera” is refused, open this page in its own tab,
+          or use demo mode above.
+        </p>
 
         <ul class="privacy-list">
           <li><strong>Zero-knowledge.</strong> Your photo never leaves your device — there is no server to receive it.</li>
@@ -129,7 +137,10 @@
           <div id="fatal" class="fatal" hidden>
             <p id="fatal-title" class="fatal__title"></p>
             <p id="fatal-hint" class="fatal__hint"></p>
-            <button id="fatal-retry" class="cta cta--small" type="button">Try again</button>
+            <div class="fatal__actions">
+              <button id="fatal-retry" class="cta cta--small" type="button">Try again</button>
+              <button id="fatal-demo" class="ghost" type="button">Use demo mode</button>
+            </div>
           </div>
         </div>
 
