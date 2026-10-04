@@ -12,6 +12,7 @@
     "dev": "vite",
     "build": "vite build",
     "preview": "vite preview",
+    "deploy:cf": "npx --yes wrangler@4.147.0 pages deploy dist",
     "test": "vitest run",
     "test:watch": "vitest",
     "audit:privacy": "node scripts/audit-privacy.mjs dist",

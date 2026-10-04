@@ -136,12 +136,39 @@ scripts/
 
 ## Deployment (Go-to-Market checklist)
 
-1. `npm run build`.
-2. Deploy `dist/` to **Cloudflare Pages** (uses `_headers`) or **Vercel** (uses
-   `vercel.json`). Both give HTTPS + CDN for free.
-3. Set your real domain in `public/robots.txt` + `public/sitemap.xml`.
-4. Submit the sitemap in Google Search Console.
-5. Verify in DevTools Network tab: the only external requests are
+### Cloudflare Pages
+
+For a Git-connected **Cloudflare Pages** project, configure:
+
+- Build command: `npm run build`
+- Build output directory: `dist`
+- Root directory: the repository root (leave the setting blank if this is the default)
+- Node.js: `22` (pinned by `.nvmrc`)
+
+Pages publishes the build output itself, so leave any custom deploy command unset.
+If deploying the built site manually with Wrangler, use:
+
+```bash
+npm run build
+npm run deploy:cf -- --project-name YOUR_PAGES_PROJECT
+```
+
+The deploy script runs `wrangler@4.147.0 pages deploy dist`. For CI, provide a Cloudflare
+API token with Pages edit permissions and set `CLOUDFLARE_ACCOUNT_ID`; replace
+`YOUR_PAGES_PROJECT` with the Pages project name (or pass it through the CI deploy
+command). **Do not use `wrangler deploy` for this site**: that command deploys a
+Worker, not a Pages static site, and makes Wrangler try to interpret
+`vite.config.js` as a Worker/Vite configuration. That is the cause of the
+`Error parsing file: .../vite.config.js` failure. The Vite config itself is valid.
+
+### Vercel and remaining checklist
+
+For Vercel, deploy the `dist/` directory (uses the generated `vercel.json`). Both
+platforms provide HTTPS + CDN for free.
+
+1. Set your real domain in `public/robots.txt` + `public/sitemap.xml`.
+2. Submit the sitemap in Google Search Console.
+3. Verify in DevTools Network tab: the only external requests are
    `*.tile.openstreetmap.org` and `nominatim.openstreetmap.org`.
 
 ### Roadmap (out of scope for V1)
