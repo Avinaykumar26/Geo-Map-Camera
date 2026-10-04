@@ -1,0 +1,5 @@
+User-agent: *
+Allow: /
+
+# Geo Map Camera stores nothing server-side; there is no sitemap of user data.
+Sitemap: https://geo-map-camera.example.com/sitemap.xml

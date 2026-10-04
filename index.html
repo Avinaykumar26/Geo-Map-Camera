@@ -1,0 +1,260 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <title>Geo Map Camera — free online geotag camera, no login, 100% on-device</title>
+    <meta
+      name="description"
+      content="Free online geotag camera. Add GPS coordinates, timestamp, address and a live map snapshot to your photos in the browser. No account, no upload — every photo is processed on your own device."
+    />
+    <meta name="color-scheme" content="dark" />
+    <meta name="theme-color" content="#070b10" />
+    <meta name="robots" content="index, follow" />
+    <meta name="referrer" content="no-referrer" />
+
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="Geo Map Camera" />
+    <meta property="og:title" content="Geo Map Camera — add location to a photo online, privately" />
+    <meta
+      property="og:description"
+      content="Capture a photo and burn accurate GPS coordinates, timestamp, address and a map snapshot straight onto it. Zero logins, zero uploads, zero trackers."
+    />
+    <meta name="twitter:card" content="summary" />
+
+    <link rel="manifest" href="./manifest.webmanifest" />
+    <link rel="icon" href="./icons/favicon.svg" type="image/svg+xml" />
+    <link rel="apple-touch-icon" href="./icons/apple-touch-icon.png" />
+    <link rel="stylesheet" href="./src/styles/main.css" />
+
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "WebApplication",
+        "name": "Geo Map Camera",
+        "applicationCategory": "MultimediaApplication",
+        "operatingSystem": "Any (browser)",
+        "browserRequirements": "Requires a browser with camera and geolocation access over HTTPS",
+        "description": "Privacy-first geotagging camera. Photos are stamped with GPS coordinates, timestamp, address and a map snapshot entirely on the user's device.",
+        "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" },
+        "featureList": [
+          "Burn GPS coordinates onto a photo",
+          "Timestamp and address stamp",
+          "Mini map snapshot on the image",
+          "Works offline, no account required"
+        ]
+      }
+    </script>
+  </head>
+  <body>
+    <a class="skip-link" href="#main">Skip to camera</a>
+
+    <header class="topbar">
+      <div class="brand">
+        <span class="brand__mark" aria-hidden="true"></span>
+        <span class="brand__name">Geo Map Camera</span>
+      </div>
+      <div class="topbar__actions">
+        <span class="badge" title="No account, no upload, no trackers">
+          <span class="badge__dot" aria-hidden="true"></span>
+          <span id="privacy-badge-text">100% on-device</span>
+        </span>
+        <button id="open-settings" class="icon-button" type="button" aria-label="Open settings" aria-expanded="false" aria-controls="settings">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 15.5a3.5 3.5 0 1 0 0-7 3.5 3.5 0 0 0 0 7Zm7.4-2.6.1-.9-.1-.9 2-1.5-2-3.4-2.3 1a7.6 7.6 0 0 0-1.6-.9L15.1 2h-4l-.4 2.3c-.6.2-1.1.5-1.6.9l-2.3-1-2 3.4 2 1.5-.1.9.1.9-2 1.5 2 3.4 2.3-1c.5.4 1 .7 1.6.9l.4 2.3h4l.4-2.3c.6-.2 1.1-.5 1.6-.9l2.3 1 2-3.4-2-1.5Z"/></svg>
+        </button>
+      </div>
+    </header>
+
+    <main id="main">
+      <!-- ===================== INTRO / LANDING ===================== -->
+      <section id="screen-intro" class="screen screen--intro">
+        <h1>Geotagged photos, made in your browser.</h1>
+        <p class="lede">
+          Point, shoot, save. Geo Map Camera burns accurate coordinates, a timestamp, the street
+          address and a map snapshot straight onto your photo — with no account, no upload and no
+          trackers.
+        </p>
+
+        <button id="start" class="cta" type="button">
+          <span class="cta__label">Start camera</span>
+          <span class="cta__hint">Camera + location stay on this device</span>
+        </button>
+
+        <ul class="privacy-list">
+          <li><strong>Zero-knowledge.</strong> Your photo never leaves your device — there is no server to receive it.</li>
+          <li><strong>No login.</strong> Nothing to sign up for, nothing to remember, nothing to leak.</li>
+          <li><strong>No trackers.</strong> No analytics, no ad networks, no cookies.</li>
+          <li><strong>Works offline.</strong> Install it to your home screen and it still stamps photos without signal.</li>
+        </ul>
+
+        <div class="feature-grid">
+          <article><h2>Field reports</h2><p>Document a site with coordinates, accuracy and time visible on the image itself.</p></article>
+          <article><h2>Property listings</h2><p>Tag every shot with the address so photos can never be mixed up between jobs.</p></article>
+          <article><h2>Travel logs</h2><p>Keep the map where it belongs — printed on the photo, not stored in someone's cloud.</p></article>
+        </div>
+
+        <details class="faq">
+          <summary>Where do my photos go?</summary>
+          <p>Nowhere. Everything — camera frames, GPS fixes, map tiles and the final image — is handled by
+          JavaScript running on your device. Saving writes a file to your own storage.</p>
+        </details>
+        <details class="faq">
+          <summary>Which network requests does the app make?</summary>
+          <p>Two, both to OpenStreetMap: raster map tiles for the mini-map, and an optional reverse-geocode
+          lookup that turns your coordinates into a street address. Neither carries your photo.</p>
+        </details>
+        <details class="faq">
+          <summary>Why does it need HTTPS?</summary>
+          <p>Browsers only hand out camera and GPS access on secure origins. That is a browser rule, not an
+          account requirement.</p>
+        </details>
+      </section>
+
+      <!-- ===================== CAMERA ===================== -->
+      <section id="screen-camera" class="screen screen--camera" hidden aria-label="Camera viewfinder">
+        <div class="viewfinder">
+          <video id="viewfinder" playsinline muted autoplay></video>
+          <div class="viewfinder__scrim" aria-hidden="true"></div>
+
+          <div class="hud">
+            <canvas id="hud-map" class="hud__map" width="224" height="168" aria-label="Mini map preview"></canvas>
+            <div class="hud__readout">
+              <p id="hud-coords" class="hud__coords">Waiting for GPS…</p>
+              <p id="hud-address" class="hud__address"></p>
+              <p id="hud-time" class="hud__time"></p>
+            </div>
+          </div>
+
+          <p id="status" class="status" role="status" aria-live="polite"></p>
+          <div id="fatal" class="fatal" hidden>
+            <p id="fatal-title" class="fatal__title"></p>
+            <p id="fatal-hint" class="fatal__hint"></p>
+            <button id="fatal-retry" class="cta cta--small" type="button">Try again</button>
+          </div>
+        </div>
+
+        <div class="controls">
+          <button id="flip" class="round-button" type="button" aria-label="Switch camera">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 6V3L8 7l4 4V8a5 5 0 0 1 5 5h2a7 7 0 0 0-7-7Zm-5 5H5a7 7 0 0 0 7 7v3l4-4-4-4v3a5 5 0 0 1-5-5Z"/></svg>
+          </button>
+          <button id="shutter" class="shutter" type="button" aria-label="Take photo">
+            <span class="shutter__ring" aria-hidden="true"></span>
+          </button>
+          <button id="last" class="round-button" type="button" aria-label="Save the last photo again" disabled>
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 3h11l3 3v13a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2Zm3 2v5h8V5H8Zm4 7a3.5 3.5 0 1 0 0 7 3.5 3.5 0 0 0 0-7Z"/></svg>
+          </button>
+        </div>
+      </section>
+
+      <!-- ===================== REVIEW ===================== -->
+      <section id="screen-review" class="screen screen--review" hidden aria-label="Captured photo">
+        <figure class="preview">
+          <img id="preview-image" alt="Your geotagged photo" />
+        </figure>
+        <p id="preview-meta" class="preview__meta"></p>
+        <div class="review-actions">
+          <button id="retake" class="ghost" type="button">Retake</button>
+          <button id="save" class="cta cta--small" type="button">Save to device</button>
+        </div>
+      </section>
+    </main>
+
+    <!-- ===================== SETTINGS DRAWER ===================== -->
+    <aside id="settings" class="drawer" role="dialog" aria-modal="true" aria-labelledby="settings-title" hidden>
+      <div class="drawer__scrim" data-close-settings></div>
+      <div class="drawer__panel">
+        <header class="drawer__header">
+          <h2 id="settings-title">Overlays &amp; export</h2>
+          <button class="icon-button" type="button" aria-label="Close settings" data-close-settings>
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m6.4 5 5.6 5.6L17.6 5 19 6.4 13.4 12 19 17.6 17.6 19 12 13.4 6.4 19 5 17.6 10.6 12 5 6.4Z"/></svg>
+          </button>
+        </header>
+
+        <div class="drawer__body">
+          <fieldset>
+            <legend>What gets stamped</legend>
+            <label class="switch"><input type="checkbox" data-setting="showMap" /><span>Mini map</span></label>
+            <label class="switch"><input type="checkbox" data-setting="showCoords" /><span>Coordinates</span></label>
+            <label class="switch"><input type="checkbox" data-setting="showTimestamp" /><span>Timestamp</span></label>
+            <label class="switch"><input type="checkbox" data-setting="showAddress" /><span>Address</span></label>
+            <label class="switch"><input type="checkbox" data-setting="showAccuracy" /><span>GPS accuracy</span></label>
+            <label class="switch"><input type="checkbox" data-setting="showWatermark" /><span>App watermark</span></label>
+          </fieldset>
+
+          <fieldset>
+            <legend>Coordinates</legend>
+            <label class="field">
+              <span>Format</span>
+              <select data-setting="coordFormat">
+                <option value="decimal">Decimal — 51.50740° N</option>
+                <option value="dms">Degrees min sec — 51°30'26.6"N</option>
+                <option value="compact">Plain — 51.50740, -0.12780</option>
+              </select>
+            </label>
+            <label class="field">
+              <span>Decimal places</span>
+              <select data-setting="coordDecimals">
+                <option value="4">4 (≈11 m)</option>
+                <option value="5">5 (≈1.1 m)</option>
+                <option value="6">6 (≈0.11 m)</option>
+              </select>
+            </label>
+          </fieldset>
+
+          <fieldset>
+            <legend>Time</legend>
+            <label class="field">
+              <span>Format</span>
+              <select data-setting="dateFormat">
+                <option value="iso">ISO — 2026-10-04 14:32:07</option>
+                <option value="local">Device locale</option>
+                <option value="us">US — 10/04/2026</option>
+                <option value="eu">EU — 04/10/2026</option>
+                <option value="unix">Unix timestamp</option>
+              </select>
+            </label>
+            <label class="switch"><input type="checkbox" data-setting="hour12" /><span>12-hour clock</span></label>
+            <label class="switch"><input type="checkbox" data-setting="showSeconds" /><span>Show seconds</span></label>
+            <label class="switch"><input type="checkbox" data-setting="showTimezone" /><span>Show UTC offset</span></label>
+          </fieldset>
+
+          <fieldset>
+            <legend>Map</legend>
+            <label class="field">
+              <span>Zoom — <output data-output="mapZoom">16</output></span>
+              <input type="range" min="12" max="19" step="1" data-setting="mapZoom" />
+            </label>
+          </fieldset>
+
+          <fieldset>
+            <legend>Export</legend>
+            <label class="field">
+              <span>File type</span>
+              <select data-setting="exportFormat">
+                <option value="jpeg">JPEG (smaller)</option>
+                <option value="png">PNG (lossless)</option>
+              </select>
+            </label>
+            <label class="field">
+              <span>JPEG quality — <output data-output="jpegQuality">92%</output></span>
+              <input type="range" min="0.5" max="1" step="0.01" data-setting="jpegQuality" />
+            </label>
+            <button id="reset-settings" class="ghost ghost--small" type="button">Reset to defaults</button>
+          </fieldset>
+
+          <p class="drawer__note">
+            Settings are stored in this browser only. Nothing is synced, sent or logged.
+          </p>
+        </div>
+      </div>
+    </aside>
+
+    <div id="toast" class="toast" role="status" aria-live="polite" hidden></div>
+
+    <noscript>
+      <p class="noscript">Geo Map Camera needs JavaScript enabled. Nothing is uploaded either way.</p>
+    </noscript>
+
+    <script type="module" src="./src/main.js"></script>
+  </body>
+</html>
