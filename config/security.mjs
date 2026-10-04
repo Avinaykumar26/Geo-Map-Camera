@@ -5,19 +5,28 @@
  *   - vite.config.js  -> applied to `vite preview` responses (prod-like testing)
  *   - vite plugin     -> writes dist/_headers (Cloudflare Pages) + dist/vercel.json (Vercel)
  *
- * The CSP is deliberately strict: no third-party scripts, no inline scripts, no
- * analytics, and only the two external hosts the app genuinely needs
- * (OpenStreetMap raster tiles + Nominatim reverse geocoding).
+ * The CSP allows the Google AdSense loader requested by the site owner, alongside
+ * the OpenStreetMap services used by the camera. It still blocks inline/eval
+ * scripts; note that Google recommends a per-response nonce CSP for full AdSense
+ * ad serving because its script dependencies can change over time.
  */
 
 /** Hosts allowed to serve map raster tiles. */
 export const TILE_HOSTS = ['https://*.tile.openstreetmap.org'];
 
-/** Hosts allowed for XHR/fetch (reverse geocoding). */
-export const CONNECT_HOSTS = ['https://nominatim.openstreetmap.org'];
+/** Hosts allowed for scripts, fetches, and XHR. */
+export const ADSENSE_SCRIPT_HOSTS = ['https://pagead2.googlesyndication.com'];
+export const CONNECT_HOSTS = [
+  'https://nominatim.openstreetmap.org',
+  ...ADSENSE_SCRIPT_HOSTS,
+];
 
-/** Everything the app talks to. Anything else is a privacy regression. */
-export const ALLOWED_EXTERNAL_HOSTS = ['tile.openstreetmap.org', 'nominatim.openstreetmap.org'];
+/** Hosts the built app is permitted to contact. */
+export const ALLOWED_EXTERNAL_HOSTS = [
+  'tile.openstreetmap.org',
+  'nominatim.openstreetmap.org',
+  'pagead2.googlesyndication.com',
+];
 
 /**
  * @param {{ scriptHashes?: string[] }} [options] sha256 hashes for inline data blocks
@@ -25,7 +34,11 @@ export const ALLOWED_EXTERNAL_HOSTS = ['tile.openstreetmap.org', 'nominatim.open
  * @returns {Record<string, string>}
  */
 export function securityHeaders({ scriptHashes = [] } = {}) {
-  const scriptSrc = ['\'self\'', ...scriptHashes.map((h) => `'sha256-${h}'`)].join(' ');
+  const scriptSrc = [
+    '\'self\'',
+    ...ADSENSE_SCRIPT_HOSTS,
+    ...scriptHashes.map((h) => `'sha256-${h}'`),
+  ].join(' ');
 
   return {
     'Content-Security-Policy': [

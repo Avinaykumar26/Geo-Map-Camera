@@ -35,12 +35,18 @@ describe('Content Security Policy', () => {
     expect(csp).toContain("script-src 'self'");
   });
 
-  it('only whitelists OpenStreetMap for pixels and geocoding', () => {
+  it('allows OpenStreetMap services and the requested AdSense loader only where needed', () => {
     expect(csp).toContain('img-src');
     expect(csp).toContain('https://*.tile.openstreetmap.org');
+    expect(csp).toContain('script-src');
+    expect(csp).toContain('https://pagead2.googlesyndication.com');
     expect(csp).toContain('connect-src');
     expect(csp).toContain('https://nominatim.openstreetmap.org');
-    expect(ALLOWED_EXTERNAL_HOSTS).toEqual(['tile.openstreetmap.org', 'nominatim.openstreetmap.org']);
+    expect(ALLOWED_EXTERNAL_HOSTS).toEqual([
+      'tile.openstreetmap.org',
+      'nominatim.openstreetmap.org',
+      'pagead2.googlesyndication.com',
+    ]);
   });
 
   it('switches off every device permission the app does not need', () => {
@@ -68,7 +74,7 @@ describe('inline JSON-LD hashing', () => {
 
   it('is emitted into the CSP so the landing page needs no unsafe-inline', () => {
     const headers = securityHeaders({ scriptHashes: scriptHashesFromHtml(html) });
-    expect(headers['Content-Security-Policy']).toMatch(/script-src 'self' 'sha256-[A-Za-z0-9+/]{43}='/);
+    expect(headers['Content-Security-Policy']).toMatch(/script-src 'self'[^;]*'sha256-[A-Za-z0-9+/]{43}='/);
   });
 });
 
@@ -88,10 +94,16 @@ describe('hosting header files', () => {
 });
 
 describe('index.html', () => {
-  it('contains no inline handlers, inline styles or third-party scripts', () => {
+  it('contains no inline handlers/styles and only the requested AdSense third-party script', () => {
     expect(html).not.toMatch(/\son[a-z]+\s*=/i);
     expect(html).not.toMatch(/<[^>]+\sstyle\s*=/i);
-    expect(html).not.toMatch(/<script[^>]+src=["']https?:/i);
+
+    const externalScripts = [...html.matchAll(/<script\b[^>]*\bsrc=["'](https?:\/\/[^"']+)["'][^>]*>/gi)]
+      .map((match) => match[1]);
+    expect(externalScripts).toEqual([
+      'https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-3171729919710528',
+    ]);
+    expect(html).toContain('crossorigin="anonymous"');
     expect(html).not.toMatch(/google-analytics|googletagmanager|doubleclick|facebook\.net/i);
   });
 
