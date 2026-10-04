@@ -1,0 +1,26 @@
+{
+  "name": "geo-map-camera-web",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Geo Map Camera Web — privacy-first geotagging camera PWA. Captures photos and burns GPS coordinates, timestamp, address and a mini-map onto the image, 100% on-device.",
+  "license": "MIT",
+  "engines": {
+    "node": ">=20.19"
+  },
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "audit:privacy": "node scripts/audit-privacy.mjs dist",
+    "verify": "npm run test && npm run build && npm run audit:privacy",
+    "icons": "bash scripts/make-icons.sh"
+  },
+  "devDependencies": {
+    "jsdom": "^30.1.2",
+    "vite": "^7.1.9",
+    "vitest": "^3.2.4"
+  }
+}
