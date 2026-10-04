@@ -1,0 +1,19 @@
+{
+  // Assets-only Worker for `npx wrangler deploy` (Cloudflare Workers Builds /
+  // Git-integrated deploys). Without this file, wrangler runs autoconfig
+  // detection, tries to parse vite.config.js and dies with
+  // "Error parsing file: .../vite.config.js". With a committed config,
+  // `wrangler deploy` simply uploads dist/ as static assets — no Worker code,
+  // no Cloudflare Vite plugin, no nodejs_compat needed.
+  //
+  // The build writes dist/_headers (via vite.config.js); Workers Static Assets
+  // honours that file, so the site's strict security headers apply here too.
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "geo-map-camera-web",
+  "compatibility_date": "2025-09-01",
+  "assets": {
+    "directory": "./dist",
+    // Single-page app: any unknown path falls back to index.html.
+    "not_found_handling": "single-page-application"
+  }
+}

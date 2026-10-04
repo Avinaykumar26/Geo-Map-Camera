@@ -162,10 +162,20 @@ npm run deploy:cf -- --project-name YOUR_PAGES_PROJECT
 The deploy script runs `wrangler@4.147.0 pages deploy dist`. For CI, provide a Cloudflare
 API token with Pages edit permissions and set `CLOUDFLARE_ACCOUNT_ID`; replace
 `YOUR_PAGES_PROJECT` with the Pages project name (or pass it through the CI deploy
-command). **Do not use `wrangler deploy` for this site**: that command deploys a
-Worker, not a Pages static site, and makes Wrangler try to interpret
-`vite.config.js` as a Worker/Vite configuration. That is the cause of the
-`Error parsing file: .../vite.config.js` failure. The Vite config itself is valid.
+command).
+
+### Cloudflare Workers (`wrangler deploy`)
+
+`wrangler deploy` is also fully supported: the committed `wrangler.jsonc` declares an
+**assets-only Worker** that serves `dist/` with an SPA fallback. This is what
+Git-integrated Cloudflare builds run (`npx wrangler deploy`), so no custom deploy
+command is needed there. `wrangler` is pinned as a devDependency, and the generated
+`dist/_headers` is honoured natively by Workers Static Assets, so the strict security
+headers apply exactly as on Pages.
+
+Note: without `wrangler.jsonc`, a bare `wrangler deploy` falls back to autoconfig
+detection, tries to parse `vite.config.js` and dies with
+`Error parsing file: .../vite.config.js` — the Vite config itself is valid.
 
 ### Vercel and remaining checklist
 
